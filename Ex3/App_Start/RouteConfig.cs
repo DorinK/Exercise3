@@ -19,8 +19,8 @@ namespace Ex3
             routes.MapRoute("displayAndUpdate", "display/{ip}/{port}/{time}",
             defaults: new { controller = "FlightLocation", action = "displayAndUpdate" });
 
-            routes.MapRoute("saveInfo", "save/{ip}/{port}/{time}/{duration}/{file}",
-            defaults: new { controller = "FlightLocation", action = "saveInfo" });
+            routes.MapRoute("saveFlightInfo", "save/{ip}/{port}/{time}/{duration}/{file}",
+            defaults: new { controller = "FlightLocation", action = "saveFlightInfo" });
 
             routes.MapRoute("displayFromFile", "display/{file}/{time}",
             defaults: new { controller = "FlightLocation", action = "displayFromFile" });

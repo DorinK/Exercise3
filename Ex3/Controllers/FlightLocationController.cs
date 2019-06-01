@@ -28,7 +28,7 @@ namespace Ex3.Controllers
         }
 
         [HttpGet]
-        public ActionResult displayAndUpdate(string ip, int port, int time=1)
+        public ActionResult displayAndUpdate(string ip, int port, int time)
         {
             InfoModel.Instance.SimulatorConnection.Ip = ip;
             InfoModel.Instance.SimulatorConnection.Port = port;
@@ -41,16 +41,18 @@ namespace Ex3.Controllers
         }
 
         [HttpGet]
-        public ActionResult saveInfo(string ip, int port, int time,int duration,string file)
+        public ActionResult saveFlightInfo(string ip, int port, int time, int duration, string file)
         {
             InfoModel.Instance.SimulatorConnection.Ip = ip;
             InfoModel.Instance.SimulatorConnection.Port = port;
             InfoModel.Instance.time = time;
             //InfoModel.Instance.Start();
 
-            Session["time"] = time;
+            Session["timeSave"] = time;
+            Session["duration"] = duration;
+            Session["file_save"] = file;
 
-            return View();
+            return View(InfoModel.Instance);
         }
 
         [HttpGet]
@@ -58,14 +60,6 @@ namespace Ex3.Controllers
         {
             return View();
         }
-
-        /*[HttpPost]
-        public string GetFlightLocation()
-        {
-            var info = InfoModel.Instance.SimulatorConnection;
-            //info.read();
-            return ToXml(info);
-        }*/
 
         [HttpPost]
         public string GetLocation()
@@ -75,6 +69,27 @@ namespace Ex3.Controllers
             return ToXml(info);
         }
 
+        [HttpPost]
+        public string GetSaveSample()
+        {
+            var info = InfoModel.Instance.location;
+            info.ReadForSave();
+            int[] data = { info.Lon, info.Lat, info.Rudder, info.Throttle };
+            InfoModel.Instance.Save(Session["file_save"].ToString(), data);
+            return ToXml(info);
+        }
+
+        /*[HttpPost]
+        public string SaveInfo()
+        {
+            var info = InfoModel.Instance.location;
+            int[] data = {info.Lon, info.Lat, info.Rudder, info.Throttle };
+
+            //int[] data = { int.Parse(Session["lon"].ToString()), int.Parse(Session["lat"].ToString()), int.Parse(Session["rudder"].ToString()), int.Parse(Session["throttle"].ToString()) };
+            InfoModel.Instance.Save(Session["file_save"].ToString(), data);
+            return Session["file_save"].ToString();
+        }*/
+
         private string ToXml(LocationPoint info)
         {
             //Initiate XML stuff
@@ -83,7 +98,7 @@ namespace Ex3.Controllers
             XmlWriter writer = XmlWriter.Create(sb, settings);
 
             writer.WriteStartDocument();
-            writer.WriteStartElement("SimulatorConnections");
+            writer.WriteStartElement("FlightLocations");
 
             info.ToXml(writer);
 
@@ -93,6 +108,23 @@ namespace Ex3.Controllers
             return sb.ToString();
         }
 
+        /*private string ToXmlSave(LocationPoint info)
+        {
+            //Initiate XML stuff
+            StringBuilder sb = new StringBuilder();
+            XmlWriterSettings settings = new XmlWriterSettings();
+            XmlWriter writer = XmlWriter.Create(sb, settings);
+
+            writer.WriteStartDocument();
+            writer.WriteStartElement("SaveSamples");
+
+            info.ToXmlAllParams(writer);
+
+            writer.WriteEndElement();
+            writer.WriteEndDocument();
+            writer.Flush();
+            return sb.ToString();
+        }*/
 
         // POST: First/Search
         //[HttpPost]

@@ -14,7 +14,6 @@
             width: 100%;
         }
     </style>
-
 </head>
 <body id="body" style="background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:100% 100%;background-attachment:fixed">
     <canvas id="myCanvas" style="border:1px solid #d3d3d3; "></canvas>
@@ -34,7 +33,6 @@
                 var ctx = c.getContext("2d");
                 ctx.beginPath();
                 ctx.strokeStyle = "blue";
-                @*ctx.fillStyle = "blue";*@
                 ctx.arc((window.innerWidth / 360) * Lon, (window.innerHeight / 180) * Lat, 4, 0, 2 * Math.PI);
                 ctx.stroke();
                 ctx.fillStyle = "red";
