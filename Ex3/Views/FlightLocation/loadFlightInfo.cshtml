@@ -7,7 +7,9 @@
 
 <html>
 <head>
-    <title>displayAndUpdate</title>
+    <meta name="viewport" content="width=device-width" />
+    <title>loadFlightInfo</title>
+
     <style>
         #myCanvas {
             height: 100%;
@@ -15,6 +17,11 @@
         }
     </style>
 
+    @{
+       int time = int.Parse(@HttpContext.Current.Session["timeLoad"].ToString());
+       int timeout = int.Parse(@HttpContext.Current.Session["timeout"].ToString());
+    }
+    
 </head>
 <body id="body" style="background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:100% 100%;background-attachment:fixed">
 
@@ -45,8 +52,8 @@
             // given in the constructor
             ctx.drawImage(this, 0, 0);
 
-            // To use the custom size we'll have to specify the scale parameters 
-            // using the element's width and height properties - lets draw one 
+            // To use the custom size we'll have to specify the scale parameters
+            // using the element's width and height properties - lets draw one
             // on top in the corner:
             ctx.drawImage(this, 0, 0, this.width, this.height);
         }
@@ -58,9 +65,12 @@
             ctx.drawImage(background, 0, 0);
         }*@
 
-        var IntervalTime = @Session["time"] * 1000
-        display = (function () {
-            $.post("@Url.Action("GetLocation")").done(function (xml) {
+        var IntervalTime = 1000/@time;
+        var timeout = @timeout * 1000;
+
+        function displayAnimation() {
+            if (timeout > 0) {
+            $.post("@Url.Action("ReadOnce")").done(function (xml) {
 
                 var xmlDoc = $.parseXML(xml),
                     $xml = $(xmlDoc),
@@ -83,18 +93,17 @@
 
                 prevLon = (window.innerWidth / 360) * Lon;
                 prevLat = (window.innerHeight / 180) * Lat;
-            });
-        });
-        setInterval(display, IntervalTime);
-        display();
+                });
+                timeout -= IntervalTime;
+            } else {
+                clearInterval(sampleInterval);
+                alert("Animation done");
+            }
+        }
+        setInterval(displayAnimation, IntervalTime);
+        displayAnimation();
     </script>
     <!--<span class="dot"></span>-->
 
 </body>
 </html>
-
-@*<body>
-        <div>
-        </div>
-    </body>
-    </html>*@

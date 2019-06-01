@@ -9,7 +9,6 @@ namespace Ex3.Models
     public class InfoModel
     {
         private static InfoModel s_instace = null;
-
         public static InfoModel Instance
         {
             get
@@ -28,6 +27,7 @@ namespace Ex3.Models
         public int time { get; set; }
         public LocationPoint location { get; }
         public SimulatorConnection SimulatorConnection { get; private set; }
+        public string[] FileContent { get; private set; }
 
         public InfoModel()
         {
@@ -75,13 +75,13 @@ namespace Ex3.Models
                 {
                     for (int i = 0; i < samples.Length; i++)
                     {
-                            file.WriteLine(samples[i]);
+                        file.WriteLine(samples[i]);
                     }
                 }
             }
         }
 
-        public void SaveData(string fileName, int[,] samples)
+        /*public void SaveData(string fileName, int[,] samples)
         {
             string path = HttpContext.Current.Server.MapPath(String.Format(SCENARIO_FILE, fileName));
             if (!File.Exists(path))
@@ -107,42 +107,15 @@ namespace Ex3.Models
                     }
                     //txtWriter.Write("Write your line or content here");
                 }
-                /*using (System.IO.StreamWriter file = new System.IO.StreamWriter(path, true))
-                {
-                    for (int i = 0; i < samples.GetLength(0); i++)
-                    {
-                        for (int j = 0; j < 4; j++)
-                            file.WriteLine(samples[i, j]);
-                    }
-                }*/
-
-
-
             }
-        }
+        }*/
 
         public void ReadData(string fileName)
         {
             string path = HttpContext.Current.Server.MapPath(String.Format(SCENARIO_FILE, fileName));
-            if (!File.Exists(path))
-            {
-
-                //Employee.FirstName = name;
-                //Employee.LastName = name;
-                //Employee.Salary = 500;
-
-                using (System.IO.StreamWriter file = new System.IO.StreamWriter(path, true))
-                {
-
-                }
-            }
-            else
-            {
-                string[] lines = System.IO.File.ReadAllLines(path);        // reading all the lines of the file
-                //Employee.FirstName = lines[0];
-                //Employee.LastName = lines[1];
-                //Employee.Salary = int.Parse(lines[2]);
-            }
+            FileContent = System.IO.File.ReadAllLines(path);
         }
+
+
     }
 }

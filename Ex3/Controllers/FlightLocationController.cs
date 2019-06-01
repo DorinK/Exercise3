@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
@@ -11,6 +12,8 @@ namespace Ex3.Controllers
 {
     public class FlightLocationController : Controller
     {
+        private static int index = 0;
+
         // GET: FlightLocation
         public ActionResult Index()
         {
@@ -20,11 +23,28 @@ namespace Ex3.Controllers
         [HttpGet]
         public ActionResult display(string ip, int port)
         {
+            if (!ValidateIPv4(ip)) {
+                string file = ip;
+                int time = port;
+                Session["timeLoad"] = time;
+                Session["file_load"] = file;
+                InfoModel.Instance.ReadData(file);
+                Session["timeout"] = (InfoModel.Instance.FileContent.Length / 4) / time;
+                return View("loadFlightInfo");
+            }
+           
             InfoModel.Instance.SimulatorConnection.Ip = ip;
             InfoModel.Instance.SimulatorConnection.Port = port;
             //InfoModel.Instance.Start();
 
-            return View();
+            return View("display");
+        }
+
+        public static bool ValidateIPv4(string ipString)
+        {
+            if (ipString.Count(c => c == '.') != 3) return false;
+            IPAddress address;
+            return IPAddress.TryParse(ipString, out address);
         }
 
         [HttpGet]
@@ -56,11 +76,25 @@ namespace Ex3.Controllers
         }
 
         [HttpGet]
-        public ActionResult displayFromFile(string file, int time)
+        public ActionResult loadFlightInfo(string file, int time)
         {
+            Session["timeLoad"] = time;
+            Session["file_load"] = file;
+            InfoModel.Instance.ReadData(file);
             return View();
         }
 
+        [HttpPost]
+        public string ReadOnce()
+        {
+            var info = InfoModel.Instance.location;
+            info.Lon = int.Parse(InfoModel.Instance.FileContent[index++]);
+            info.Lat = int.Parse(InfoModel.Instance.FileContent[index++]);
+            info.Rudder = int.Parse(InfoModel.Instance.FileContent[index++]);
+            info.Throttle = int.Parse(InfoModel.Instance.FileContent[index++]);
+            return ToXml(info);
+
+        }
         [HttpPost]
         public string GetLocation()
         {
