@@ -21,26 +21,32 @@ namespace Ex3.Controllers
         }
 
         [HttpGet]
-        public ActionResult display(string ip, int port)
+        public ActionResult display(string param1, int param2)
         {
-            if (!ValidateIPv4(ip)) {
-                string file = ip;
-                int time = port;
-                Session["timeLoad"] = time;
-                Session["file_load"] = file;
+            var model = InfoModel.Instance;
+            if (!ValidateIPv4(param1))
+            {
+                string file = param1;
+                int time = param2;
                 InfoModel.Instance.ReadData(file);
-                Session["timeout"] = (InfoModel.Instance.FileContent.Length / 4) / time;
+                double infoLength = model.FileContent.Length;
+                double timeout = (infoLength / 4) / (double)time;
+
+                Session["timeLoad"] = time;
+                Session["timeout"] = timeout;
+
                 return View("loadFlightInfo");
             }
-           
-            InfoModel.Instance.SimulatorConnection.Ip = ip;
-            InfoModel.Instance.SimulatorConnection.Port = port;
-            //InfoModel.Instance.Start();
 
+            string ip = param1;
+            int port = param2;
+            model.SimulatorConnection.Ip = ip;
+            model.SimulatorConnection.Port = port;
+            //InfoModel.Instance.Start();
             return View("display");
         }
 
-        public static bool ValidateIPv4(string ipString)
+        private bool ValidateIPv4(string ipString)
         {
             if (ipString.Count(c => c == '.') != 3) return false;
             IPAddress address;
@@ -52,78 +58,76 @@ namespace Ex3.Controllers
         {
             InfoModel.Instance.SimulatorConnection.Ip = ip;
             InfoModel.Instance.SimulatorConnection.Port = port;
-            InfoModel.Instance.time = time;
             //InfoModel.Instance.Start(); 
 
             Session["time"] = time;
 
-            return View();
+            return View("displayAndUpdate");
         }
 
         [HttpGet]
         public ActionResult saveFlightInfo(string ip, int port, int time, int duration, string file)
         {
-            InfoModel.Instance.SimulatorConnection.Ip = ip;
-            InfoModel.Instance.SimulatorConnection.Port = port;
-            InfoModel.Instance.time = time;
+            InfoModel model = InfoModel.Instance;
+            model.SimulatorConnection.Ip = ip;
+            model.SimulatorConnection.Port = port;
             //InfoModel.Instance.Start();
+            model.PrepareFile(file);
 
             Session["timeSave"] = time;
             Session["duration"] = duration;
             Session["file_save"] = file;
 
-            return View(InfoModel.Instance);
+            return View();
         }
 
-        [HttpGet]
+        /*[HttpGet]
         public ActionResult loadFlightInfo(string file, int time)
         {
             Session["timeLoad"] = time;
             Session["file_load"] = file;
             InfoModel.Instance.ReadData(file);
             return View();
-        }
+        }*/
 
-        [HttpPost]
-        public string ReadOnce()
-        {
-            var info = InfoModel.Instance.location;
-            info.Lon = int.Parse(InfoModel.Instance.FileContent[index++]);
-            info.Lat = int.Parse(InfoModel.Instance.FileContent[index++]);
-            info.Rudder = int.Parse(InfoModel.Instance.FileContent[index++]);
-            info.Throttle = int.Parse(InfoModel.Instance.FileContent[index++]);
-            return ToXml(info);
-
-        }
         [HttpPost]
         public string GetLocation()
         {
-            var info = InfoModel.Instance.location;
-            info.read();
+            var info = InfoModel.Instance.Location;
+            //info.Read();
             return ToXml(info);
         }
 
         [HttpPost]
         public string GetSaveSample()
         {
-            var info = InfoModel.Instance.location;
-            info.ReadForSave();
-            int[] data = { info.Lon, info.Lat, info.Rudder, info.Throttle };
-            InfoModel.Instance.Save(Session["file_save"].ToString(), data);
+            var info = InfoModel.Instance.Location;
+            //info.Read();
+            InfoModel.Instance.SaveData(Session["file_save"].ToString(), new int[] { info.Lon, info.Lat, info.Rudder, info.Throttle });
             return ToXml(info);
         }
 
-        /*[HttpPost]
-        public string SaveInfo()
+        [HttpPost]
+        public string ReadOnce()
         {
-            var info = InfoModel.Instance.location;
-            int[] data = {info.Lon, info.Lat, info.Rudder, info.Throttle };
+            var model = InfoModel.Instance;
+            var info = model.Location;
+            if (index < model.FileContent.Length)
+            {
+            info.Lon = int.Parse(model.FileContent[index++]);
+            info.Lat = int.Parse(model.FileContent[index++]);
+            info.Rudder = int.Parse(model.FileContent[index++]);
+            info.Throttle = int.Parse(model.FileContent[index++]);
+            }
+            return ToXml(info);
+        }
 
-            //int[] data = { int.Parse(Session["lon"].ToString()), int.Parse(Session["lat"].ToString()), int.Parse(Session["rudder"].ToString()), int.Parse(Session["throttle"].ToString()) };
-            InfoModel.Instance.Save(Session["file_save"].ToString(), data);
-            return Session["file_save"].ToString();
+        /*public ActionResult check()
+        {
+            if (index >= InfoModel.instace.FileContent.Length)
+                return Content("true");
+            return Content("false");
         }*/
-
         private string ToXml(LocationPoint info)
         {
             //Initiate XML stuff
@@ -141,32 +145,5 @@ namespace Ex3.Controllers
             writer.Flush();
             return sb.ToString();
         }
-
-        /*private string ToXmlSave(LocationPoint info)
-        {
-            //Initiate XML stuff
-            StringBuilder sb = new StringBuilder();
-            XmlWriterSettings settings = new XmlWriterSettings();
-            XmlWriter writer = XmlWriter.Create(sb, settings);
-
-            writer.WriteStartDocument();
-            writer.WriteStartElement("SaveSamples");
-
-            info.ToXmlAllParams(writer);
-
-            writer.WriteEndElement();
-            writer.WriteEndDocument();
-            writer.Flush();
-            return sb.ToString();
-        }*/
-
-        // POST: First/Search
-        //[HttpPost]
-        /*public string Search(string name)
-        {
-            InfoModel.Instance.ReadData(name);
-
-            return ToXml(InfoModel.Instance.Employee);
-        }*/
     }
 }

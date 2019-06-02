@@ -1,6 +1,5 @@
-﻿@model Ex3.Models.InfoModel
+﻿
 @{
-    ViewBag.Title = "saveFlightInfo";
     Layout = null;
 }
 
@@ -8,24 +7,18 @@
 
 <html>
 <head>
-    <meta name="viewport" content="width=device-width" />
     <title>saveFlightInfo</title>
 
     <style>
         #myCanvas {
             height: 100%;
             width: 100%;
+            background-color: transparent;
         }
     </style>
-
-    @{
-        int time = int.Parse(@HttpContext.Current.Session["timeLoad"].ToString());
-        int duration = int.Parse(@HttpContext.Current.Session["duration"].ToString());
-    }
 </head>
 <body id="body" style="background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:100% 100%;background-attachment:fixed">
-    <canvas id="myCanvas" style="border:1px solid #d3d3d3; background:inherit "></canvas>
-
+    <canvas id="myCanvas" style="border:1px solid #d3d3d3; "></canvas>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script>
@@ -33,13 +26,12 @@
         var prevLat;
         var Lon;
         var Lat;
-        var Rudder;
-        var Throttle;
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
 
-        var j = 0;
-        const image = new Image(window.innerWidth, window.innerHeight); // Using optional size for image
+        /*const image = new Image(window.innerWidth, window.innerHeight); // Using optional size for image
         image.onload = drawImageActualSize; // Draw when image has loaded
 
         // Load an image of intrinsic size 300x227 in CSS pixels
@@ -58,20 +50,24 @@
             // using the element's width and height properties - lets draw one
             // on top in the corner:
             ctx.drawImage(this, 0, 0, this.width, this.height);
+        }*/
+
+        @{
+            int time = int.Parse(@HttpContext.Current.Session["timeSave"].ToString());
+            int timeout = int.Parse(@HttpContext.Current.Session["duration"].ToString());
         }
-
         var IntervalTime = 1000/@time;
-        var timeout = @duration * 1000;
+        var timeout = @timeout * 1000;
 
-        function display() {
+        function displaySamples() {
             if (timeout > 0) {
                 $.post("@Url.Action("GetSaveSample")").done(function (xml) {
                     var xmlDoc = $.parseXML(xml),
                         $xml = $(xmlDoc),
                         Lon = $xml.find("Lon").text();
                     Lat = $xml.find("Lat").text();
-                    Rudder = $xml.find("Rudder").text();
-                    Throttle = $xml.find("Throttle").text();
+                    //Rudder = $xml.find("Rudder").text();
+                    //Throttle = $xml.find("Throttle").text();
 
                     if ((prevLon != null) && (prevLat != null)) {
                         ctx.strokeStyle = "red";
@@ -89,20 +85,16 @@
 
                     prevLon = (window.innerWidth / 360) * Lon;
                     prevLat = (window.innerHeight / 180) * Lat;
-
                 });
                 timeout -= IntervalTime;
-
             } else {
                 clearInterval(sampleInterval);
             }
         }
 
-        sampleInterval = setInterval(display, IntervalTime);
-        display();
-
+        sampleInterval = setInterval(displaySamples, IntervalTime);
+        displaySamples();
     </script>
 
 </body>
 </html>
-

@@ -14,12 +14,9 @@
             width: 100%;
         }
     </style>
-
 </head>
-<body id="body" style="background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:100% 100%;background-attachment:fixed">
-
-    <canvas id="myCanvas" style="border:1px solid #d3d3d3; background:inherit "></canvas>
-
+<body id="body" style="backface-visibility:visible; background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:100% 100%;background-attachment:fixed">
+    <canvas id="myCanvas" style="border:1px solid #d3d3d3 "></canvas>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script>
@@ -29,8 +26,10 @@
         var Lat;
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
 
-        const image = new Image(window.innerWidth, window.innerHeight); // Using optional size for image
+        /*const image = new Image(window.innerWidth, window.innerHeight); // Using optional size for image
         image.onload = drawImageActualSize; // Draw when image has loaded
 
         // Load an image of intrinsic size 300x227 in CSS pixels
@@ -45,11 +44,11 @@
             // given in the constructor
             ctx.drawImage(this, 0, 0);
 
-            // To use the custom size we'll have to specify the scale parameters 
-            // using the element's width and height properties - lets draw one 
+            // To use the custom size we'll have to specify the scale parameters
+            // using the element's width and height properties - lets draw one
             // on top in the corner:
             ctx.drawImage(this, 0, 0, this.width, this.height);
-        }
+        }*/
         @*var background = new Image();
         background.src = "/Resources/export-map-share.png";
 
@@ -88,13 +87,6 @@
         setInterval(display, IntervalTime);
         display();
     </script>
-    <!--<span class="dot"></span>-->
 
 </body>
 </html>
-
-@*<body>
-        <div>
-        </div>
-    </body>
-    </html>*@

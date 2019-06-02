@@ -7,7 +7,6 @@
 
 <html>
 <head>
-    <meta name="viewport" content="width=device-width" />
     <title>loadFlightInfo</title>
 
     <style>
@@ -18,14 +17,13 @@
     </style>
 
     @{
-       int time = int.Parse(@HttpContext.Current.Session["timeLoad"].ToString());
-       int timeout = int.Parse(@HttpContext.Current.Session["timeout"].ToString());
+        int time = int.Parse(@HttpContext.Current.Session["timeLoad"].ToString());
+        double timeout = double.Parse(@HttpContext.Current.Session["timeout"].ToString());
     }
-    
+
 </head>
 <body id="body" style="background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:100% 100%;background-attachment:fixed">
-
-    <canvas id="myCanvas" style="border:1px solid #d3d3d3; background:inherit "></canvas>
+    <canvas id="myCanvas" style="border:1px solid #d3d3d3 "></canvas>
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
@@ -36,8 +34,10 @@
         var Lat;
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
 
-        const image = new Image(window.innerWidth, window.innerHeight); // Using optional size for image
+        /*const image = new Image(window.innerWidth, window.innerHeight); // Using optional size for image
         image.onload = drawImageActualSize; // Draw when image has loaded
 
         // Load an image of intrinsic size 300x227 in CSS pixels
@@ -56,7 +56,7 @@
             // using the element's width and height properties - lets draw one
             // on top in the corner:
             ctx.drawImage(this, 0, 0, this.width, this.height);
-        }
+        }*/
         @*var background = new Image();
         background.src = "/Resources/export-map-share.png";
 
@@ -66,44 +66,43 @@
         }*@
 
         var IntervalTime = 1000/@time;
-        var timeout = @timeout * 1000;
+        var timeout = 1000 * @timeout;
 
         function displayAnimation() {
             if (timeout > 0) {
-            $.post("@Url.Action("ReadOnce")").done(function (xml) {
+                $.post("@Url.Action("ReadOnce")").done(function (xml) {
+                    var xmlDoc = $.parseXML(xml),
+                        $xml = $(xmlDoc),
+                        Lon = $xml.find("Lon").text();
+                    Lat = $xml.find("Lat").text();
 
-                var xmlDoc = $.parseXML(xml),
-                    $xml = $(xmlDoc),
-                    Lon = $xml.find("Lon").text();
-                Lat = $xml.find("Lat").text();
+                    if ((prevLon != null) && (prevLat != null)) {
+                        ctx.strokeStyle = "red";
+                        ctx.moveTo(prevLon, prevLat);
+                        ctx.lineTo((window.innerWidth / 360) * Lon, (window.innerHeight / 180) * Lat);
+                        ctx.stroke();
+                    }
 
-                if ((prevLon != null) && (prevLat != null)) {
-                    ctx.strokeStyle = "red";
-                    ctx.moveTo(prevLon, prevLat);
-                    ctx.lineTo((window.innerWidth / 360) * Lon, (window.innerHeight / 180) * Lat);
+                    ctx.beginPath();
+                    ctx.strokeStyle = "blue";
+                    ctx.arc((window.innerWidth / 360) * Lon, (window.innerHeight / 180) * Lat, 4, 0, 2 * Math.PI);
                     ctx.stroke();
-                }
+                    ctx.fillStyle = "red";
+                    ctx.fill();
 
-                ctx.beginPath();
-                ctx.strokeStyle = "blue";
-                ctx.arc((window.innerWidth / 360) * Lon, (window.innerHeight / 180) * Lat, 4, 0, 2 * Math.PI);
-                ctx.stroke();
-                ctx.fillStyle = "red";
-                ctx.fill();
-
-                prevLon = (window.innerWidth / 360) * Lon;
-                prevLat = (window.innerHeight / 180) * Lat;
+                    prevLon = (window.innerWidth / 360) * Lon;
+                    prevLat = (window.innerHeight / 180) * Lat;
                 });
                 timeout -= IntervalTime;
             } else {
                 clearInterval(sampleInterval);
-                alert("Animation done");
+                alert("                                     Animation done!");
             }
         }
-        setInterval(displayAnimation, IntervalTime);
+
+        sampleInterval=setInterval(displayAnimation, IntervalTime);
         displayAnimation();
     </script>
-    <!--<span class="dot"></span>-->
 
 </body>
 </html>

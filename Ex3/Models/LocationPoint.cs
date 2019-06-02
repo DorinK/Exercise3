@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ex3.Models.Sockets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,31 +9,37 @@ namespace Ex3.Models
 {
     public class LocationPoint
     {
-        private static Random rnd = new Random();
+        //private static Random rnd = new Random();
 
         public int Lon { get; set; }
         public int Lat { get;  set; }
         public int Rudder { get;  set; }
         public int Throttle { get;  set; }
 
-        /*public LocationPoint()
+        /*public double Lon { get; set; }
+        public double Lat { get; set; }
+        public double Rudder { get; set; }
+        public double Throttle { get; set; }*/
+        
+        /*public void Read(BaseClient simulator)
         {
-            this.Lon = rnd.Next(360);
-            this.Lat = rnd.Next(180);
-            this.Rudder = rnd.Next(124);
-            this.Throttle = rnd.Next(124);
+            Dictionary<string,double> dictionary= simulator.Read();
+            Lon = dictionary["Lon"];
+            Lat = dictionary["Lat"];
+            Rudder = dictionary["Rudder"];
+            Throttle = dictionary["Throttle"];
         }*/
 
-        //public int GetLon() => this.Lon;
-        /*public void ToXmlAllParams(XmlWriter writer)
+        public void ToXml(XmlWriter writer)
         {
             writer.WriteStartElement("LocationPoint");
             writer.WriteElementString("Lon", this.Lon.ToString());
             writer.WriteElementString("Lat", this.Lat.ToString());
+            writer.WriteElementString("Rudder", this.Rudder.ToString());
+            writer.WriteElementString("Throttle", this.Throttle.ToString());
             writer.WriteEndElement();
-        }*/
-
-        public void read()
+        }
+        /*public void read()
         {
             //read from FG server.
             this.Lon = rnd.Next(360);
@@ -48,14 +55,7 @@ namespace Ex3.Models
             Throttle = rnd.Next(124);
         }
 
-        public void ToXml(XmlWriter writer)
-        {
-            writer.WriteStartElement("LocationPoint");
-            writer.WriteElementString("Lon", this.Lon.ToString());
-            writer.WriteElementString("Lat", this.Lat.ToString());
-            writer.WriteElementString("Rudder", this.Rudder.ToString());
-            writer.WriteElementString("Throttle", this.Throttle.ToString());
-            writer.WriteEndElement();
-        }
+        */
+
     }
 }

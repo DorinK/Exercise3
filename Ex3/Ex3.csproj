@@ -111,7 +111,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Sockets\BaseClient.cs" />
+    <Compile Include="Models\Sockets\ConnectToServer.cs" />
     <Compile Include="Models\InfoModel.cs" />
+    <Compile Include="Models\Sockets\ITelnetClient.cs" />
     <Compile Include="Models\LocationPoint.cs" />
     <Compile Include="Models\SimulatorConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
