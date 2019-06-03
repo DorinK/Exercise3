@@ -1,4 +1,5 @@
 ﻿using Ex3.Models;
+using Ex3.Models.Sockets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace Ex3.Controllers
             {
                 string file = param1;
                 int time = param2;
-                InfoModel.Instance.ReadData(file);
+                model.ReadData(file);
                 double infoLength = model.FileContent.Length;
                 double timeout = (infoLength / 4) / (double)time;
 
@@ -40,8 +41,13 @@ namespace Ex3.Controllers
 
             string ip = param1;
             int port = param2;
-            model.SimulatorConnection.Ip = ip;
-            model.SimulatorConnection.Port = port;
+
+            Session["ip"] = ip;
+            Session["port"] = port;
+
+            ConnectToServer.Instance(ip, port).Connect();
+            //model.SimulatorConnection.Ip = ip;
+            //model.SimulatorConnection.Port = port;
             //InfoModel.Instance.Start();
             return View("display");
         }
@@ -56,10 +62,10 @@ namespace Ex3.Controllers
         [HttpGet]
         public ActionResult displayAndUpdate(string ip, int port, int time)
         {
-            InfoModel.Instance.SimulatorConnection.Ip = ip;
-            InfoModel.Instance.SimulatorConnection.Port = port;
-            //InfoModel.Instance.Start(); 
+            ConnectToServer.Instance(ip, port).Connect();
 
+            Session["ip"] = ip;
+            Session["port"] = port;
             Session["time"] = time;
 
             return View("displayAndUpdate");
@@ -69,41 +75,32 @@ namespace Ex3.Controllers
         public ActionResult saveFlightInfo(string ip, int port, int time, int duration, string file)
         {
             InfoModel model = InfoModel.Instance;
-            model.SimulatorConnection.Ip = ip;
-            model.SimulatorConnection.Port = port;
-            //InfoModel.Instance.Start();
+            ConnectToServer.Instance(ip, port).Connect();
             model.PrepareFile(file);
 
+            Session["ip"] = ip;
+            Session["port"] = port;
             Session["timeSave"] = time;
             Session["duration"] = duration;
             Session["file_save"] = file;
 
-            return View();
+            return View("saveFlightInfo");
         }
-
-        /*[HttpGet]
-        public ActionResult loadFlightInfo(string file, int time)
-        {
-            Session["timeLoad"] = time;
-            Session["file_load"] = file;
-            InfoModel.Instance.ReadData(file);
-            return View();
-        }*/
 
         [HttpPost]
         public string GetLocation()
         {
-            var info = InfoModel.Instance.Location;
-            //info.Read();
+            var info = LocationPoint.Instance;
+            info.Read(ConnectToServer.Instance(Session["ip"].ToString(), int.Parse(Session["port"].ToString())).Read());
             return ToXml(info);
         }
 
         [HttpPost]
         public string GetSaveSample()
         {
-            var info = InfoModel.Instance.Location;
-            //info.Read();
-            InfoModel.Instance.SaveData(Session["file_save"].ToString(), new int[] { info.Lon, info.Lat, info.Rudder, info.Throttle });
+            var info = LocationPoint.Instance;
+            info.Read(ConnectToServer.Instance(Session["ip"].ToString(),int.Parse(Session["port"].ToString())).Read());
+            InfoModel.Instance.SaveData(Session["file_save"].ToString(), new double[] { info.Lon, info.Lat, info.Rudder, info.Throttle });
             return ToXml(info);
         }
 
@@ -111,23 +108,17 @@ namespace Ex3.Controllers
         public string ReadOnce()
         {
             var model = InfoModel.Instance;
-            var info = model.Location;
+            var info = LocationPoint.Instance;
             if (index < model.FileContent.Length)
             {
-            info.Lon = int.Parse(model.FileContent[index++]);
-            info.Lat = int.Parse(model.FileContent[index++]);
-            info.Rudder = int.Parse(model.FileContent[index++]);
-            info.Throttle = int.Parse(model.FileContent[index++]);
+            info.Lon = double.Parse(model.FileContent[index++]);
+            info.Lat = double.Parse(model.FileContent[index++]);
+            info.Rudder = double.Parse(model.FileContent[index++]);
+            info.Throttle = double.Parse(model.FileContent[index++]);
             }
             return ToXml(info);
         }
 
-        /*public ActionResult check()
-        {
-            if (index >= InfoModel.instace.FileContent.Length)
-                return Content("true");
-            return Content("false");
-        }*/
         private string ToXml(LocationPoint info)
         {
             //Initiate XML stuff

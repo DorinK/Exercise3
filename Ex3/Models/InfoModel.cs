@@ -20,22 +20,11 @@ namespace Ex3.Models
         }
 
         private System.IO.StreamWriter writer;
-        public SimulatorConnection SimulatorConnection { get; private set; }
-        public LocationPoint Location { get; }
         public string[] FileContent { get; private set; }
-        public int Index { get;  set; }
 
-        public InfoModel()
+        /*public InfoModel()
         {
-            Index = 0;
-            SimulatorConnection = new SimulatorConnection();
             Location = new LocationPoint();
-        }
-
-        /*public void Start()
-        {
-            //NetworkConnection.Connect();
-            SimulatorConnection.read();
         }*/
 
         private const string SCENARIO_FILE = "~/App_Data/{0}.txt";           // The Path of the Secnario
@@ -51,13 +40,13 @@ namespace Ex3.Models
             }
         }
 
-        public void SaveData(string fileName, int[] samples)
+        public void SaveData(string fileName, double[] samples)
         {
             string path = HttpContext.Current.Server.MapPath(String.Format(SCENARIO_FILE, fileName));
             using (writer = new System.IO.StreamWriter(path, true))
             {
-                foreach (int param in samples)
-                    writer.WriteLine(param);
+                foreach (double sample in samples)
+                    writer.WriteLine(sample);
             }
         }
 

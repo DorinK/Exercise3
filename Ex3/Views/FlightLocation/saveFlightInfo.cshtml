@@ -8,56 +8,51 @@
 <html>
 <head>
     <title>saveFlightInfo</title>
-
     <style>
-        #myCanvas {
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        img {
             height: 100%;
             width: 100%;
-            background-color: transparent;
+            position: absolute;
+        }
+
+        canvas {
+            height: 100%;
+            width: 100%;
+            position: absolute;
         }
     </style>
+
+    @{
+        //int time = int.Parse(@HttpContext.Current.Session["timeSave"].ToString());
+        //int timeout = int.Parse(@HttpContext.Current.Session["duration"].ToString());
+    }
+
 </head>
 <body id="body" style="background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:100% 100%;background-attachment:fixed">
-    <canvas id="myCanvas" style="border:1px solid #d3d3d3; "></canvas>
+    <img id="img" src="~/Resources/export-map-share.png" />
+    <canvas id="myCanvas"></canvas>
+
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script>
         var prevLon;
         var prevLat;
-        var Lon;
-        var Lat;
+        //var Lon;
+        //var Lat;
+        var a = document.getElementById("body");
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
         c.width = window.innerWidth;
         c.height = window.innerHeight;
 
-        /*const image = new Image(window.innerWidth, window.innerHeight); // Using optional size for image
-        image.onload = drawImageActualSize; // Draw when image has loaded
-
-        // Load an image of intrinsic size 300x227 in CSS pixels
-        image.src = "/Resources/export-map-share.png";
-
-        function drawImageActualSize() {
-            // Use the intrinsic size of image in CSS pixels for the canvas element
-            c.width = window.innerWidth;
-            c.height = window.innerHeight;
-
-            // Will draw the image as 300x227, ignoring the custom size of 60x45
-            // given in the constructor
-            ctx.drawImage(this, 0, 0);
-
-            // To use the custom size we'll have to specify the scale parameters
-            // using the element's width and height properties - lets draw one
-            // on top in the corner:
-            ctx.drawImage(this, 0, 0, this.width, this.height);
-        }*/
-
-        @{
-            int time = int.Parse(@HttpContext.Current.Session["timeSave"].ToString());
-            int timeout = int.Parse(@HttpContext.Current.Session["duration"].ToString());
-        }
-        var IntervalTime = 1000/@time;
-        var timeout = @timeout * 1000;
+        var IntervalTime = 1000 / @Session["timeSave"]
+        var timeout = 1000 * @Session["duration"]
 
         function displaySamples() {
             if (timeout > 0) {
@@ -66,25 +61,30 @@
                         $xml = $(xmlDoc),
                         Lon = $xml.find("Lon").text();
                     Lat = $xml.find("Lat").text();
-                    //Rudder = $xml.find("Rudder").text();
-                    //Throttle = $xml.find("Throttle").text();
+
+                    var normalizedLon = (window.innerWidth / 360.0) * (parseFloat(Lon) + 180);
+                    var normalizedLat = (window.innerHeight / 180.0) * (parseFloat(Lat) + 90);
 
                     if ((prevLon != null) && (prevLat != null)) {
                         ctx.strokeStyle = "red";
+                        ctx.lineWidth = 1;
                         ctx.moveTo(prevLon, prevLat);
-                        ctx.lineTo((window.innerWidth / 360) * Lon, (window.innerHeight / 180) * Lat);
+                        ctx.lineTo(normalizedLon, normalizedLat);
                         ctx.stroke();
                     }
 
+                    //ctx.clearRect(0, 0, c.width, c.height);
                     ctx.beginPath();
                     ctx.strokeStyle = "blue";
-                    ctx.arc((window.innerWidth / 360) * Lon, (window.innerHeight / 180) * Lat, 4, 0, 2 * Math.PI);
+                    ctx.lineWidth = 3;
+                    ctx.arc(normalizedLon, normalizedLat, 3, 0, 2 * Math.PI);
                     ctx.stroke();
                     ctx.fillStyle = "red";
                     ctx.fill();
 
-                    prevLon = (window.innerWidth / 360) * Lon;
-                    prevLat = (window.innerHeight / 180) * Lat;
+                    prevLon = normalizedLon;
+                    prevLat = normalizedLat;
+
                 });
                 timeout -= IntervalTime;
             } else {

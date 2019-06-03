@@ -9,14 +9,21 @@
 <head>
     <title>display</title>
     <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
         #myCanvas {
             height: 100%;
             width: 100%;
+            position: absolute;
         }
     </style>
 </head>
 <body id="body" style="background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:100% 100%;background-attachment:fixed">
-    <canvas id="myCanvas" style="border:1px solid #d3d3d3 "></canvas>
+    <canvas id="myCanvas"></canvas>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script>
@@ -27,44 +34,24 @@
                     Lon = $xml.find("Lon").text();
                 Lat = $xml.find("Lat").text();
 
+                var normalizedLon = (window.innerWidth / 360.0) * (parseFloat(Lon) + 180);
+                var normalizedLat = (window.innerHeight / 180.0) * (parseFloat(Lat) + 90);
+
                 var c = document.getElementById("myCanvas");
                 c.width = window.innerWidth;
                 c.height = window.innerHeight;
                 var ctx = c.getContext("2d");
                 ctx.beginPath();
                 ctx.strokeStyle = "blue";
-                ctx.arc((window.innerWidth / 360) * Lon, (window.innerHeight / 180) * Lat, 4, 0, 2 * Math.PI);
+                ctx.arc(normalizedLon, normalizedLat, 3, 0, 2 * Math.PI);
                 ctx.stroke();
                 ctx.fillStyle = "red";
                 ctx.fill();
             });
         });
+
         display();
     </script>
-    <!--<span class="dot"></span>-->
 
 </body>
 </html>
-
-@*<script>
-            var IntervalTime = @Session["time"] * 1000
-            myTimer = (function () {
-            $.post( "@Url.Action("GetFlightLocation")").done(function (xml) {
-                var xmlDoc = $.parseXML( xml ),
-                $xml = $(xmlDoc),
-                Lon = $xml.find("Lon").text();
-                Lat = $xml.find("Lat").text();
-
-                var canvas = document.getElementById("myCanvas");
-                var ctx = canvas.getContext("2d");
-                ctx.beginPath();
-                ctx.strokeStyle = "black";
-                ctx.arc(Lon, Lat, 4, 0, 2 * Math.PI);
-                ctx.stroke();
-                ctx.strokeStyle="red"
-                ctx.fill()
-            });
-        });
-        setInterval(myTimer, IntervalTime);
-        myTimer();
-    </script>*@

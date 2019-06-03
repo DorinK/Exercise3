@@ -132,8 +132,8 @@
     <Content Include="Views\FlightLocation\display.cshtml" />
     <Content Include="Views\FlightLocation\Index.cshtml" />
     <Content Include="Views\FlightLocation\displayAndUpdate.cshtml" />
-    <Content Include="Views\FlightLocation\saveFlightInfo.cshtml" />
     <Content Include="Views\FlightLocation\loadFlightInfo.cshtml" />
+    <Content Include="Views\FlightLocation\saveFlightInfo.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

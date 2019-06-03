@@ -21,13 +21,22 @@ namespace Ex3.Models.Sockets
         // Get port from port object.
         public override int Port { get => ep.Port; }
 
-        // Construct client ip end point.
-        public ConnectToServer(string ip, int port) => ep = new IPEndPoint(IPAddress.Parse(ip), port);
-
         private string Lon_Path { get; } = "/position/longitude-deg";
         private string Lat_Path { get; } = "/position/latitude-deg";
         private string Rudder_Path { get; } = "/controls/flight/rudder";
         private string Throttle_Path { get; } = "/controls/engines/current-engine/throttle";
+
+        // Construct client ip end point.
+        private ConnectToServer(string ip, int port) => ep = new IPEndPoint(IPAddress.Parse(ip), port);
+
+        private static BaseClient instance = null;
+        public static BaseClient Instance(string ip, int port)
+        {
+
+            if (instance == null)
+                instance = new ConnectToServer(ip, port);
+            return instance;
+        }
 
         // Connect to client, create task and loop.
         public override void Connect()
@@ -95,15 +104,14 @@ namespace Ex3.Models.Sockets
                 // If exepction happened, problem with client.
                 NotifyClientDisconnectedEvent();
             }
-        }        
+        }
 
         private double ReadOnce(string path)
         {
             try
             {
-                byte[] myWriteBuffer = Encoding.ASCII.GetBytes("get " + Lon_Path + "\r\n");
+                byte[] myWriteBuffer = Encoding.ASCII.GetBytes("get " + path + "\r\n");
                 client.GetStream().Write(myWriteBuffer, 0, myWriteBuffer.Length);
-                //STR = new StreamReader(writeStream);
                 byte[] bytes = new byte[client.ReceiveBufferSize];
                 client.GetStream().Read(bytes, 0, client.ReceiveBufferSize);
                 string returnedData = Encoding.ASCII.GetString(bytes);
@@ -118,7 +126,7 @@ namespace Ex3.Models.Sockets
 
         public override Dictionary<string, double> Read()
         {
-            Dictionary<string, double> values = new Dictionary<string, double>()
+            var values = new Dictionary<string, double>()
             {
                 ["Lon"] = ReadOnce(Lon_Path),
                 ["Lat"] = ReadOnce(Lat_Path),
