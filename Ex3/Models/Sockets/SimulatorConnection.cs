@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Ex3.Models.Sockets
 {
-    class ConnectToServer : BaseClient
+    class SimulatorConnection : BaseClient
     {
         IPEndPoint ep;
         TcpClient client;
@@ -27,14 +27,14 @@ namespace Ex3.Models.Sockets
         private string Throttle_Path { get; } = "/controls/engines/current-engine/throttle";
 
         // Construct client ip end point.
-        private ConnectToServer(string ip, int port) => ep = new IPEndPoint(IPAddress.Parse(ip), port);
+        private SimulatorConnection(string ip, int port) => ep = new IPEndPoint(IPAddress.Parse(ip), port);
 
         private static BaseClient instance = null;
         public static BaseClient Instance(string ip, int port)
         {
 
             if (instance == null)
-                instance = new ConnectToServer(ip, port);
+                instance = new SimulatorConnection(ip, port);
             return instance;
         }
 
@@ -90,6 +90,15 @@ namespace Ex3.Models.Sockets
 
         }
 
+        private string ParseValue(string toBeParsed)
+        {
+            string[] result = toBeParsed.Split('=');
+            result = result[1].Split('\'');
+            result = result[1].Split('\'');
+
+            return result[0];
+        }
+
         // Write to client msg.
         public override void Write(string command)
         {
@@ -115,7 +124,8 @@ namespace Ex3.Models.Sockets
                 byte[] bytes = new byte[client.ReceiveBufferSize];
                 client.GetStream().Read(bytes, 0, client.ReceiveBufferSize);
                 string returnedData = Encoding.ASCII.GetString(bytes);
-                return double.Parse(returnedData);
+                string parsed = ParseValue(returnedData);
+                return double.Parse(parsed);
             }
             catch (Exception)
             {

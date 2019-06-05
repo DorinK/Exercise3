@@ -9,6 +9,7 @@
 <head>
     <title>saveFlightInfo</title>
     <style>
+
         body, html {
             height: 100%;
             margin: 0;
@@ -27,67 +28,66 @@
             position: absolute;
         }
     </style>
-
-    @{
-        //int time = int.Parse(@HttpContext.Current.Session["timeSave"].ToString());
-        //int timeout = int.Parse(@HttpContext.Current.Session["duration"].ToString());
-    }
-
 </head>
 <body id="body" style="background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:100% 100%;background-attachment:fixed">
     <img id="img" src="~/Resources/export-map-share.png" />
     <canvas id="myCanvas"></canvas>
 
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script>
         var prevLon;
         var prevLat;
-        //var Lon;
-        //var Lat;
-        var a = document.getElementById("body");
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
         c.width = window.innerWidth;
         c.height = window.innerHeight;
 
-        var IntervalTime = 1000 / @Session["timeSave"]
+        // Defining the interval time between each sample we take from the simulaor.
+        var IntervalTime = 1000 * @Session["timeSave"]
+        // Defining the timeout
         var timeout = 1000 * @Session["duration"]
 
         function displaySamples() {
+            // Keep sampling as long as timeout hasn't expired.
             if (timeout > 0) {
+                // Getting the current values of the Lon and Lat.
                 $.post("@Url.Action("GetSaveSample")").done(function (xml) {
                     var xmlDoc = $.parseXML(xml),
                         $xml = $(xmlDoc),
                         Lon = $xml.find("Lon").text();
                     Lat = $xml.find("Lat").text();
 
-                    var normalizedLon = (window.innerWidth / 360.0) * (parseFloat(Lon) + 180);
-                    var normalizedLat = (window.innerHeight / 180.0) * (parseFloat(Lat) + 90);
+                    // Normalizing the values of the Lon and Lat
+                    normalizedLon = (parseFloat(window.innerWidth) / 360) * (parseFloat(Lon) + 180);
+                    normalizedLat = (parseFloat(window.innerHeight) / 180) * (parseFloat(Lat) + 90);
 
+                    // If it's not the first sample - draw the connected line.Drawing the connected line.
                     if ((prevLon != null) && (prevLat != null)) {
-                        ctx.strokeStyle = "red";
+                        ctx.lineCap = "round";
                         ctx.lineWidth = 1;
+                        ctx.strokeStyle = "red";
                         ctx.moveTo(prevLon, prevLat);
                         ctx.lineTo(normalizedLon, normalizedLat);
                         ctx.stroke();
                     }
 
-                    //ctx.clearRect(0, 0, c.width, c.height);
+                    // Drawing the flight location using the Lon and Lat values from the simulator
                     ctx.beginPath();
-                    ctx.strokeStyle = "blue";
-                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = "black";
+                    ctx.lineWidth = 4;
                     ctx.arc(normalizedLon, normalizedLat, 3, 0, 2 * Math.PI);
                     ctx.stroke();
                     ctx.fillStyle = "red";
                     ctx.fill();
 
+                    // save current values as last values.
                     prevLon = normalizedLon;
                     prevLat = normalizedLat;
 
                 });
                 timeout -= IntervalTime;
             } else {
+                // If timeout is 0, stop sampling.
                 clearInterval(sampleInterval);
             }
         }

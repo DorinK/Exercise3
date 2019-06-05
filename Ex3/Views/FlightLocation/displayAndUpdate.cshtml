@@ -36,41 +36,45 @@
     <script>
         var prevLon;
         var prevLat;
-        //var Lon;
-        //var Lat;
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
         c.width = window.innerWidth;
         c.height = window.innerHeight;
 
+        // Defining the interval time between each sample we take from the simulaor.
         var IntervalTime = @Session["time"] * 1000
         display = (function () {
+             // Getting the current values of the Lon and Lat.
             $.post("@Url.Action("GetLocation")").done(function (xml) {
                 var xmlDoc = $.parseXML(xml),
                     $xml = $(xmlDoc),
                     Lon = $xml.find("Lon").text();
                 Lat = $xml.find("Lat").text();
 
+                // Normalizing the values of the Lon and Lat
                 normalizedLon = (parseFloat(window.innerWidth) / 360) * (parseFloat(Lon) + 180);
                 normalizedLat = (parseFloat(window.innerHeight) / 180) * (parseFloat(Lat) + 90);
 
+                // If it's not the first sample - draw the connected line.Drawing the connected line.
                 if ((prevLon != null) && (prevLat != null)) {
-                    ctx.strokeStyle = "red";
+                    ctx.lineCap = "round";
                     ctx.lineWidth = 1;
+                    ctx.strokeStyle = "red";
                     ctx.moveTo(prevLon, prevLat);
                     ctx.lineTo(normalizedLon, normalizedLat);
                     ctx.stroke();
                 }
 
-                //ctx.clearRect(0, 0, c.width, c.height);
+                // Drawing the flight location using the Lon and Lat values from the simulator
                 ctx.beginPath();
-                ctx.strokeStyle = "blue";
-                ctx.lineWidth = 3;
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 4;
                 ctx.arc(normalizedLon, normalizedLat, 3, 0, 2 * Math.PI);
                 ctx.stroke();
                 ctx.fillStyle = "red";
                 ctx.fill();
 
+                // save current values as last values.
                 prevLon = normalizedLon;
                 prevLat = normalizedLat;
             });

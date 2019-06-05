@@ -28,21 +28,26 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script>
         display = (function () {
+            // Getting the current values of the Lon and Lat.
             $.post("@Url.Action("GetLocation")").done(function (xml) {
                 var xmlDoc = $.parseXML(xml),
                     $xml = $(xmlDoc),
                     Lon = $xml.find("Lon").text();
                 Lat = $xml.find("Lat").text();
 
-                var normalizedLon = (window.innerWidth / 360.0) * (parseFloat(Lon) + 180);
-                var normalizedLat = (window.innerHeight / 180.0) * (parseFloat(Lat) + 90);
+                // Normalizing the values of the Lon and Lat.
+                normalizedLon = (parseFloat(window.innerWidth) / 360) * (parseFloat(Lon) + 180);
+                normalizedLat = (parseFloat(window.innerHeight) / 180) * (parseFloat(Lat) + 90);
 
                 var c = document.getElementById("myCanvas");
                 c.width = window.innerWidth;
                 c.height = window.innerHeight;
                 var ctx = c.getContext("2d");
+
+                // Drawing the flight location using the Lon and Lat values from the simulator
                 ctx.beginPath();
-                ctx.strokeStyle = "blue";
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 4;
                 ctx.arc(normalizedLon, normalizedLat, 3, 0, 2 * Math.PI);
                 ctx.stroke();
                 ctx.fillStyle = "red";
