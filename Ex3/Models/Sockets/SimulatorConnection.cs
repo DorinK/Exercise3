@@ -90,6 +90,7 @@ namespace Ex3.Models.Sockets
 
         }
 
+        // Parse string from the simulator
         private string ParseValue(string toBeParsed)
         {
             string[] result = toBeParsed.Split('=');
@@ -115,6 +116,7 @@ namespace Ex3.Models.Sockets
             }
         }
 
+        // Read one param each time
         private double ReadOnce(string path)
         {
             try
@@ -124,6 +126,8 @@ namespace Ex3.Models.Sockets
                 byte[] bytes = new byte[client.ReceiveBufferSize];
                 client.GetStream().Read(bytes, 0, client.ReceiveBufferSize);
                 string returnedData = Encoding.ASCII.GetString(bytes);
+
+                // parse the string
                 string parsed = ParseValue(returnedData);
                 return double.Parse(parsed);
             }
@@ -134,6 +138,7 @@ namespace Ex3.Models.Sockets
             return double.NaN;
         }
 
+        // Read all params one by one.
         public override Dictionary<string, double> Read()
         {
             var values = new Dictionary<string, double>()

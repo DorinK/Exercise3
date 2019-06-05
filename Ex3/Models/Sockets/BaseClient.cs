@@ -18,7 +18,7 @@ namespace Ex3.Models.Sockets
         public abstract void Connect(); // Connect to client.
         public abstract void ReConnect(string ip, int port);    // Reconnect to ip and port given.
         public abstract void Write(string command); // Write to client msg.
-        public abstract Dictionary<string,double> Read();
+        public abstract Dictionary<string, double> Read();
         public abstract void Disconnect();  // Disconnect from client.
 
         // Notify that client connected.

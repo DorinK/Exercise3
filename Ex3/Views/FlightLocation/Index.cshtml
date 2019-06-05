@@ -8,31 +8,9 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Index</title>
+    <title>My ASP.NET Application</title>
 </head>
-<body style="background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:100% 100%;background-attachment:fixed">
-    <canvas id="myCanvas" width="2000" height="1000" style="border:1px solid black;"></canvas>
-    <script>
-            //var IntervalTime = @Session["time"] * 1000
-            myTimer = (function () {
-            $.post( "@Url.Action("GetFlightLocation")").done(function (xml) {
-                var xmlDoc = $.parseXML( xml ),
-                $xml = $(xmlDoc),
-                Lon = $xml.find("Lon").text();
-                Lat = $xml.find("Lat").text();
-
-                var canvas = document.getElementById("myCanvas");
-                var ctx = canvas.getContext("2d");
-                ctx.beginPath();
-                ctx.strokeStyle = "blue";
-                ctx.arc(parseInt(Lon), parseInt(Lat), 40, 0, 2 * Math.PI);
-                ctx.stroke();
-                ctx.strokeStyle = "red"
-                ctx.fill()
-            });
-        });
-        //setInterval(myTimer, IntervalTime);
-        myTimer();
-    </script>
+<body style="background:url(../../Resources/export-map-share.png);background-repeat:no-repeat;background-size:80% 80%;background-attachment:fixed; background-position:center; background-color:aliceblue">
+    ************************************************************************   Welcome to My ASP.NET Application!!!   ************************************************************************
 </body>
 </html>

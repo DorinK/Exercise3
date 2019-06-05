@@ -22,7 +22,7 @@ namespace Ex3.Controllers
         }
 
         [HttpGet]
-        
+
         public ActionResult display(string param1, int param2)
         {
             var model = InfoModel.Instance;
@@ -42,7 +42,7 @@ namespace Ex3.Controllers
                 return View("loadFlightInfo");
             }
 
-            // desplaying only current location
+            // desplay only current location.
             string ip = param1;
             int port = param2;
 
@@ -66,6 +66,7 @@ namespace Ex3.Controllers
         // Sampling the flight info with no time limit.
         public ActionResult displayAndUpdate(string ip, int port, int time)
         {
+            // connect to the simulator.
             SimulatorConnection.Instance(ip, port).Connect();
 
             Session["ip"] = ip;
@@ -80,6 +81,7 @@ namespace Ex3.Controllers
         public ActionResult saveFlightInfo(string ip, int port, int time, int duration, string file)
         {
             InfoModel model = InfoModel.Instance;
+            // connect to the simulator.
             SimulatorConnection.Instance(ip, port).Connect();
             model.PrepareFile(file);
 
@@ -106,7 +108,7 @@ namespace Ex3.Controllers
         public string GetSaveSample()
         {
             var info = LocationInfo.Instance;
-            info.Read(SimulatorConnection.Instance(Session["ip"].ToString(),int.Parse(Session["port"].ToString())).Read());
+            info.Read(SimulatorConnection.Instance(Session["ip"].ToString(), int.Parse(Session["port"].ToString())).Read());
             InfoModel.Instance.SaveData(Session["file_save"].ToString(), new double[] { info.Lon, info.Lat, info.Rudder, info.Throttle });
             return ToXml(info);
         }
@@ -121,10 +123,10 @@ namespace Ex3.Controllers
             // As long we can still read.
             if (index < model.FileContent.Length)
             {
-            info.Lon = double.Parse(model.FileContent[index++]);
-            info.Lat = double.Parse(model.FileContent[index++]);
-            info.Rudder = double.Parse(model.FileContent[index++]);
-            info.Throttle = double.Parse(model.FileContent[index++]);
+                info.Lon = double.Parse(model.FileContent[index++]);
+                info.Lat = double.Parse(model.FileContent[index++]);
+                info.Rudder = double.Parse(model.FileContent[index++]);
+                info.Throttle = double.Parse(model.FileContent[index++]);
             }
             return ToXml(info);
         }
@@ -132,7 +134,7 @@ namespace Ex3.Controllers
         // Creating an xml.
         private string ToXml(LocationInfo info)
         {
-            //Initiate XML stuff
+            // Initiate XML stuff
             StringBuilder sb = new StringBuilder();
             XmlWriterSettings settings = new XmlWriterSettings();
             XmlWriter writer = XmlWriter.Create(sb, settings);

@@ -26,7 +26,7 @@ namespace Ex3.Models
         public string[] FileContent { get; private set; }
 
         // The Path of the Secnario
-        private const string SCENARIO_FILE = "~/App_Data/{0}.txt";           
+        private const string SCENARIO_FILE = "~/App_Data/{0}.txt";
 
         // If the file exists we clear it's content.
         public void PrepareFile(string fileName)
