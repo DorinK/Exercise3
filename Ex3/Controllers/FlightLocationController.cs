@@ -13,7 +13,7 @@ namespace Ex3.Controllers
 {
     public class FlightLocationController : Controller
     {
-        private static int index = 0;
+        private static int index;
 
         // GET: FlightLocation
         public ActionResult Index()
@@ -32,6 +32,7 @@ namespace Ex3.Controllers
                 string file = param1;
                 int time = param2;
                 model.ReadData(file);
+                index = 0;
                 double infoLength = model.FileContent.Length;
                 //defining timeout
                 double timeout = (infoLength / 4) * (double)time;
